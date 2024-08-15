@@ -29,7 +29,7 @@ var qsBusiIN = fmt.Sprintf("http://host.docker.internal:%d%s", qsBusiPortIN, qsB
 var qsBusiOUT = fmt.Sprintf("http://host.docker.internal:%d%s", qsBusiPortOUT, qsBusiAPI)
 
 func QsFireRequest() string {
-	req := &gin.H{"amount": 30} // load of micro-service
+	req := &ReqHTTP{Amount: 30} // load of micro-service
 	// DtmServer is the url of dtm
 	saga := dtmcli.NewSaga(dtmServer, shortuuid.New()).
 		// add a TransOut sub-transaction，forward operation with url: qsBusi+"/TransOut", reverse compensation operation with url: qsBusi+"/TransOutCompensate"
@@ -37,12 +37,17 @@ func QsFireRequest() string {
 		// add a TransIn sub-transaction, forward operation with url: qsBusi+"/TransIn", reverse compensation operation with url: qsBusi+"/TransInCompensate"
 		Add(qsBusiIN+"/TransIn", qsBusiIN+"/TransInCompensate", req)
 	// submit the created saga transaction，dtm ensures all sub-transactions either complete or get revoked
-	saga.RetryInterval = 3
-	saga.RequestTimeout = 10
+	saga.RetryInterval = 1
+	//saga.RequestTimeout = 10
 	err := saga.Submit()
 
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("提交了一个全局事务gid", saga.Gid)
 	return saga.Gid
+}
+
+type ReqHTTP struct {
+	Amount int `json:"amount"`
 }

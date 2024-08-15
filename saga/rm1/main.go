@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"time"
 )
 
 func main() {
@@ -32,15 +31,18 @@ func QsStartSvr() {
 
 func qsAddRoute(app *gin.Engine) {
 	app.POST(qsBusiAPI+"/TransIn", func(c *gin.Context) {
-		log.Printf("TransIn")
-		// c.JSON(200, "")
-
-		time.Sleep(time.Second * 5)
+		info := infoFromContext(c)
+		var req ReqHTTP
+		c.ShouldBindJSON(&req)
+		log.Printf("TransIn:%v,gid:%v", req.Amount, info.Gid)
 		c.JSON(http.StatusConflict, dtmimp.OrString(MainSwitch.QueryPreparedResult.Fetch(), dtmcli.ResultFailure)) // Status 409 for Failure. Won't be retried
 	})
 	app.POST(qsBusiAPI+"/TransInCompensate", func(c *gin.Context) {
-		log.Printf("TransInCompensate")
-		c.JSON(200, "")
+		info := infoFromContext(c)
+		var req ReqHTTP
+		c.ShouldBindJSON(&req)
+		log.Printf("TransInCompensate:%v,gid:%v", req.Amount, info.Gid)
+		c.JSON(http.StatusOK, dtmimp.OrString(MainSwitch.QueryPreparedResult.Fetch(), dtmcli.ResultSuccess))
 	})
 
 }
@@ -88,3 +90,17 @@ func (s *AutoEmptyString) Fetch() string {
 
 // MainSwitch controls busi success or fail
 var MainSwitch mainSwitchType
+
+func infoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
+	info := dtmcli.BranchBarrier{
+		TransType: c.Query("trans_type"),
+		Gid:       c.Query("gid"),
+		BranchID:  c.Query("branch_id"),
+		Op:        c.Query("op"),
+	}
+	return &info
+}
+
+type ReqHTTP struct {
+	Amount int `json:"amount"`
+}
