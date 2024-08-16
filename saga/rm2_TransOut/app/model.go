@@ -1,39 +1,22 @@
-package main
+package app
 
 import (
-	"fmt"
 	"github.com/dtm-labs/dtmcli"
-	"github.com/dtm-labs/dtmcli/dtmimp"
 	"github.com/dtm-labs/dtmcli/logger"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 )
 
-func main() {
-	app := gin.Default()
-	app.POST(qsBusiAPI+"/TransOut", func(c *gin.Context) {
-		info := infoFromContext(c)
-		var req ReqHTTP
-		c.ShouldBindJSON(&req)
-		log.Printf("TransOut:%v,gid:%v", req.Amount, info.Gid)
-		c.JSON(http.StatusOK, dtmimp.OrString(MainSwitch.QueryPreparedResult.Fetch(), dtmcli.ResultSuccess))
-	})
-	app.POST(qsBusiAPI+"/TransOutCompensate", func(c *gin.Context) {
-		info := infoFromContext(c)
-		var req ReqHTTP
-		c.ShouldBindJSON(&req)
-		log.Printf("TransOutCompensate:%vgid:%v", req.Amount, info.Gid)
-		c.JSON(http.StatusOK, dtmimp.OrString(MainSwitch.QueryPreparedResult.Fetch(), dtmcli.ResultSuccess))
-	})
-	log.Printf("quick start examples listening at %d", qsBusiPort)
+// TransOutUID 1
+const TransOutUID = 1
 
-	app.Run(fmt.Sprintf(":%d", qsBusiPort))
-}
+// TransInUID 2
+const TransInUID = 2
 
-// busi address
-const qsBusiAPI = "/api/busi_start"
-const qsBusiPort = 8880
+// Redis 1
+const Redis = "redis"
+
+// Mongo 1
+const Mongo = "mongo"
 
 // QsStartSvr quick start: start server
 func QsStartSvr() {
@@ -76,11 +59,7 @@ func (s *AutoEmptyString) Fetch() string {
 // MainSwitch controls busi success or fail
 var MainSwitch mainSwitchType
 
-type ReqHTTP struct {
-	Amount int `json:"amount"`
-}
-
-func infoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
+func InfoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
 	info := dtmcli.BranchBarrier{
 		TransType: c.Query("trans_type"),
 		Gid:       c.Query("gid"),
@@ -88,4 +67,11 @@ func infoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
 		Op:        c.Query("op"),
 	}
 	return &info
+}
+
+type ReqHTTP struct {
+	Amount         int    `json:"amount"`
+	TransInResult  string `json:"trans_in_result"`
+	TransOutResult string `json:"trans_out_Result"`
+	Store          string `json:"store"` // default mysql, value can be mysql|redis
 }
