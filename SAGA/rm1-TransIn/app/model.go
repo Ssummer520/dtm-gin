@@ -59,6 +59,14 @@ func (s *AutoEmptyString) Fetch() string {
 // MainSwitch controls busi success or fail
 var MainSwitch mainSwitchType
 
+type ReqHTTP struct {
+	Amount         int    `json:"amount"`
+	TransInResult  string `json:"trans_in_result"`
+	TransOutResult string `json:"trans_out_Result"`
+	Store          string `json:"store"` // default mysql, value can be mysql|redis
+	UserID         int    `json:"userID"`
+}
+
 func InfoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
 	info := dtmcli.BranchBarrier{
 		TransType: c.Query("trans_type"),
@@ -67,11 +75,4 @@ func InfoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
 		Op:        c.Query("op"),
 	}
 	return &info
-}
-
-type ReqHTTP struct {
-	Amount         int    `json:"amount"`
-	TransInResult  string `json:"trans_in_result"`
-	TransOutResult string `json:"trans_out_Result"`
-	Store          string `json:"store"` // default mysql, value can be mysql|redis
 }

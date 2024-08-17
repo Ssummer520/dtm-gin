@@ -1,7 +1,8 @@
 package main
 
 import (
-	"dtm-gin/saga/rm2_TransOut/app"
+	"dtm-gin/TCC/rm1-TransIn/app"
+
 	"fmt"
 	_ "github.com/dtm-labs/dtmcli/logger"
 	"github.com/gin-gonic/gin"
@@ -10,23 +11,26 @@ import (
 	"runtime"
 )
 
+func main() {
+	QsStartSvr()
+
+}
+
 // busi address
 const qsBusiAPI = "/app/busi_start"
-const qsBusiPort = 8880
+const qsBusiPort = 8882
 
-func main() {
-	r := gin.Default()
-	r.POST(qsBusiAPI+"/TransOut", app.TransOutHandler)
-
-	r.POST(qsBusiAPI+"/TransOutCompensate", app.TransOutCompensateHandler)
-
+// QsStartSvr quick start: start server
+func QsStartSvr() {
+	app := gin.Default()
+	qsAddRoute(app)
 	// These 2 lines are only required if you're using mutex or block profiling
 	// Read the explanation below for how to set these rates:
 	runtime.SetMutexProfileFraction(5)
 	runtime.SetBlockProfileRate(5)
-	fmt.Println()
+
 	pyroscope.Start(pyroscope.Config{
-		ApplicationName: "TransOut.golang.app",
+		ApplicationName: "TransIn.golang.app",
 
 		// replace this with the address of pyroscope server
 		ServerAddress: "http://localhost:4040",
@@ -34,7 +38,7 @@ func main() {
 		// you can disable logging by setting this to nil
 
 		// you can provide static tags via a map:
-		Tags: map[string]string{"hostname": "TransOut"},
+		Tags: map[string]string{"hostname": "TransIn"},
 
 		ProfileTypes: []pyroscope.ProfileType{
 			// these profile types are enabled by default:
@@ -52,8 +56,13 @@ func main() {
 			pyroscope.ProfileBlockDuration,
 		},
 	})
+	app.Run(fmt.Sprintf(":%d", qsBusiPort))
 
-	// your code goes here
+}
 
-	r.Run(fmt.Sprintf(":%d", qsBusiPort))
+func qsAddRoute(r *gin.Engine) {
+	r.POST(qsBusiAPI+"/TccBTransInTry", app.TccBTransInTryHandler)
+	r.POST(qsBusiAPI+"/TccBTransInConfirm", app.TccBTransInConfirmHandler)
+	r.POST(qsBusiAPI+"/TccBTransInCancel", app.TccBTransInCancelHandler)
+
 }

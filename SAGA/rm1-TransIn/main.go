@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dtm-gin/saga/rm1-TransIn/app"
+	"dtm-gin/SAGA/rm1-TransIn/app"
 	"fmt"
 	_ "github.com/dtm-labs/dtmcli/logger"
 	"github.com/gin-gonic/gin"
