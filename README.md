@@ -1,6 +1,8 @@
 
 # dtm官方文档
   部署需要的库表 https://dtm.pub/deploy/base.html#%E9%97%AE%E9%A2%98%E8%AF%8A%E6%96%AD
+# docker安装dtm 其他方式参考官网
+    docker run -itd  --name dtm -p 36789:36789 -p 36790:36790  yedf/dtm:latest
 # 关于docker安装dtm，代码dtm都是桥接模式，
     直连模式修改 http://host.docker.internal  为http://localhost
 # 以下数据库都在一数据库实例下面，如果需要改动需要调整代码
