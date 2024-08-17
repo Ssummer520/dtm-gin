@@ -1,12 +1,14 @@
 package app
 
 import (
+	"fmt"
 	"github.com/dtm-labs/dtmcli"
 	"github.com/dtm-labs/dtmcli/dtmimp"
 	"github.com/dtm-labs/dtmcli/logger"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
 )
 
 // TccBTransInTryHandler TRY
@@ -15,6 +17,7 @@ func TccBTransInTryHandler(c *gin.Context) {
 	inputDto := reqFrom(c)
 	barrier := MustBarrierFromGin(c)
 
+	fmt.Println("time.sleep stop ", time.Now())
 	log.Printf("TccBTransInTryHandler:%vgid:%v", inputDto.Amount, info.Gid)
 	err := TccBTransInTryService(barrier, inputDto)
 	if err != nil {

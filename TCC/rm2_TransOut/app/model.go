@@ -70,6 +70,6 @@ func InfoFromContext(c *gin.Context) *dtmcli.BranchBarrier {
 }
 
 type ReqHTTP struct {
-	Amount int `json:"amount"`
-	UserID int `json:"userID"`
+	Amount int    `json:"amount"`
+	UserID string `json:"userID"`
 }

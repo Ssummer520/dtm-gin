@@ -9,6 +9,7 @@ import (
 	"github.com/grafana/pyroscope-go"
 	_ "github.com/grafana/pyroscope-go"
 	"runtime"
+	"time"
 )
 
 // busi address
@@ -16,6 +17,12 @@ const qsBusiAPI = "/app/busi_start"
 const qsBusiPort = 8888
 
 func main() {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		fmt.Println("错误:", err)
+		return
+	}
+	time.Local = loc
 	r := gin.Default()
 	r.POST(qsBusiAPI+"/TccBTransOutTry", app.TccBTransOutTryHandler)
 	r.POST(qsBusiAPI+"/TccBTransOutConfirm", app.TccBTransOutConfirmHandler)
